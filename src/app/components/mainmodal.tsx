@@ -27,7 +27,7 @@ const Mainmodal = () => {
             <ModalHeader>Modal Title</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Lorem count={2} />
+              
             </ModalBody>
   
             <ModalFooter>
