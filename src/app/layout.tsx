@@ -16,7 +16,7 @@ export default function RootLayout({children,}: Readonly<{
 }>) {
   return (
     <html lang="en">
-      <body className={` h-screen w-screen ${inter.className}`}>
+      <body className={` h-screen w-screen ${inter.className} bg-black`}>
         <Providers>
         <Navbar/>
         {children}
