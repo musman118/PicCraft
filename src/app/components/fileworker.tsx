@@ -3,7 +3,7 @@ export default async function fileworker(formdata: FormData) {
     try {
         console.log("Making Request");
         console.log(formdata);
-        const response = await fetch('http://musman.xyz/api', {
+        const response = await fetch('https://musman.xyz/api', {
             method: 'POST',
             body: formdata,
         })
