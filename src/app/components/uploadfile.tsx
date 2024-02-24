@@ -78,19 +78,15 @@ const UploadFile = (props:any) => {
         <ModalHeader>Drop/Add your file</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              
-              
-            <div {...getRootProps({style})}>
+              <div {...getRootProps({style: style as React.CSSProperties})}>
                 <input {...getInputProps()} />
-                    {
-                        isDragActive ?
-                        <p>{`Drop the files here ...`}</p> :
-                        <p>{`Drag 'n' drop some files here, or click to select files`}</p>
-                    }
-    </div>
+                {isDragActive ? (
+                  <p>{`Drop the files here ...`}</p>
+                ) : (
+                  <p>{`Drag 'n' drop some files here, or click to select files`}</p>
+                )}
+              </div>
               {preview && <p><img src={preview as string} /></p>}
-            
-              
             </ModalBody>
   
             <ModalFooter>
