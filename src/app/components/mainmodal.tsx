@@ -1,9 +1,12 @@
 'use client'
-import { useState,useRef } from "react"
+import { useState,useRef,useEffect } from "react"
 import { useDisclosure } from "@chakra-ui/react"
 import { v4 as uuidv4 } from 'uuid';
 import fileworker from './fileworker'
-
+import UploadFile from "./uploadfile";
+import FileOptions from "./fileoptions";
+import FileDownload from "./filedownload";
+import LoadingScreen from "./loading";
 // Different ModalViews 
 // View 1 : Upload File (Drag & Drop)
 // View 2 : Options list (View, Edit, Delete , etc)
@@ -19,44 +22,49 @@ import {
     ModalBody,
     ModalCloseButton,
   } from '@chakra-ui/react'
+import Loading from "./loading";
  
- const Mainmodal = () => {
-  const [isOpened,setOpened]  = useState(false);
-  const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);
+ const Mainmodal =  () => {
+  
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [file,setFile] = useState<File | undefined>(undefined);
+  const [option,setOption] = useState<string>("");
+  const [Submitted, setSubmitted] = useState(false);
+  const [view, setView]  = useState<string>("Upload");
+  const [url, setUrl] = useState("");
   
   const userId = uuidv4();
   
   
-  const onfilechange = (e: React.FormEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement & {
-      files: FileList;
+  useEffect(() => {
+    if (view === "Wait") {
+        handleSubmit();
     }
-    setFile(target.files[0]);
-    const file = new FileReader;
-
-    file.onload = function() {
-      setPreview(file.result);
-    }
-  
-    file.readAsDataURL(target.files[0])
-  }
-  
-  const handleSubmit = (event:any) => {
-    event.preventDefault()
+}, [view]);
+ 
+  const  handleSubmit =  async () => {
+    
     console.log("Handle Submit is being called")
-    if(file){
+    if(file && option && userId){
       const formData = new FormData();
       console.log("file is being uploaded")
-      // console.log(file.name)
-      // console.log(file.arrayBuffer)
+      
       
       formData.append('file',file);
       formData.append('userId',userId);
-      const res = fileworker(formData);
-      console.log(res)
+      formData.append('option',option);
+      
+      try {
+        const response  =  await fileworker(formData);
+        console.log("Response is being awaited")
+        setUrl(response)
+        console.log(response)
+        setView("Submit");
+      } catch (error) {
+        
+      }
     }
+    
     
 
     
@@ -71,29 +79,17 @@ import {
         <Modal isOpen={isOpen} onClose={onClose} >
           <ModalOverlay />
           <ModalContent minH={"50%"} minW={"50%"} >
-          
-            <ModalHeader>Drop/Add your file</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              
-              
-              <form >
-                <input id="image" name="imagefile" accept="image/png image/jpg" type="file" onChange={onfilechange}></input>
-                
-              </form>
-              {preview && <p><img src={preview as string} /></p>}
-            
-              
-            </ModalBody>
-  
-            <ModalFooter>
-              <Button colorScheme='blue' mr={3} onClick={onClose}>
-                Close
-              </Button>
-              <Button variant="ghost" onClick={handleSubmit}>Submit</Button>
-              
-            </ModalFooter>
-            
+            {view === "Upload" ? (
+              <UploadFile onClose={onClose} setFile={setFile} setView={setView} />
+            ) : view === "Option" ? (
+              <FileOptions  onClose={onClose} setOption={setOption} setView={setView} setSubmitted={setSubmitted}  />
+            ) : view === "Wait" ? (
+
+              <LoadingScreen  />
+            ) : view == "Submit" ? (
+              <FileDownload onClose={onClose} setOption={setOption} setView={setView} setSubmitted={setSubmitted} url={url} />
+            )
+          : null}
           </ModalContent>
         </Modal>
       </>
