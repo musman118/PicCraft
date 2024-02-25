@@ -1,5 +1,4 @@
 import Request from 'next';
-import fs from 'fs'
 import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import Jimp from 'jimp';
@@ -14,12 +13,11 @@ export async function POST(request: Request) {
         const id = formData.get('userId') as string;
         const imageFile = formData.get('file') as Blob;
 
-        // Read the image file using fs.readFile or convert Blob to buffer
-        const buffer = await imageFile.arrayBuffer();
-        const imageBuffer = Buffer.from(buffer);
+        // Read the image file using FileReader
+        const buffer = await readFile(imageFile);
 
         // Load the image buffer using jimp
-        const image = await Jimp.read(imageBuffer);
+        const image = await Jimp.read(buffer);
 
         // Apply transformations based on options
         const option = formData.get('option') as string;
@@ -29,32 +27,35 @@ export async function POST(request: Request) {
             throw new Error('Invalid image manipulation option');
         }
 
-        // Convert image to buffer
+        // Convert modified image to buffer
         const modifiedImageBuffer = await image.getBufferAsync(Jimp.MIME_JPEG); // Change MIME type if needed
 
-        // Save the modified image
-        const imageName = `${id}-modified.jpg`; // Adjust file extension as needed
-        await fs.promises.writeFile(imageName, modifiedImageBuffer);
-
         // Upload modified image to Vercel Blob Storage
-        const blob = await put(imageName, modifiedImageBuffer, { access: 'public' });
-        
+        const blob = await put(`${id}-modified.jpg`, modifiedImageBuffer, { access: 'public' });
         const link = blob.downloadUrl;
 
-        const response = new Response(JSON.stringify({ link }), {
-            status: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            },
-        });
-
-        return response;
+        return NextResponse.json({ link }, { status: 200 });
     } catch (error) {
         console.error('Error processing image:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
+}
+
+async function readFile(file: Blob): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (reader.result instanceof ArrayBuffer) {
+                resolve(Buffer.from(reader.result));
+            } else {
+                reject(new Error('Failed to read file'));
+            }
+        };
+        reader.onerror = () => {
+            reject(new Error('Failed to read file'));
+        };
+        reader.readAsArrayBuffer(file);
+    });
 }
 
 function applyImageOption(image: Jimp, option: string) {
