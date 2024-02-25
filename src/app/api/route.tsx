@@ -2,6 +2,7 @@ import Request from 'next';
 import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import Jimp from 'jimp';
+import { promises as fsPromises } from 'fs';
 
 const ImageOptions = ["Gaussian", "Blur", "Invert", "Grayscale", "Normalize", "Sepia"];
 
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
         const id = formData.get('userId') as string;
         const imageFile = formData.get('file') as Blob;
 
-        // Read the image file using FileReader
+        // Read the image file using fsPromises
         const buffer = await readFile(imageFile);
 
         // Load the image buffer using jimp
@@ -42,20 +43,8 @@ export async function POST(request: Request) {
 }
 
 async function readFile(file: Blob): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (reader.result instanceof ArrayBuffer) {
-                resolve(Buffer.from(reader.result));
-            } else {
-                reject(new Error('Failed to read file'));
-            }
-        };
-        reader.onerror = () => {
-            reject(new Error('Failed to read file'));
-        };
-        reader.readAsArrayBuffer(file);
-    });
+    const arrayBuffer = await file.arrayBuffer();
+    return Buffer.from(arrayBuffer);
 }
 
 function applyImageOption(image: Jimp, option: string) {
