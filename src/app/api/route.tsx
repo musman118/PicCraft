@@ -39,9 +39,18 @@ export async function POST(request: Request) {
         // Upload modified image to Vercel Blob Storage
         const blob = await put(imageName, modifiedImageBuffer, { access: 'public' });
         
-        const link   = blob.downloadUrl
+        const link = blob.downloadUrl;
 
-        return NextResponse.json({ link });
+        const response = new Response(JSON.stringify({ link }), {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+        });
+
+        return response;
     } catch (error) {
         console.error('Error processing image:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
