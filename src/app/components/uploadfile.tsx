@@ -22,7 +22,7 @@ const baseStyle = {
   };
   
   const focusedStyle = {
-    borderColor: '#2196f3'
+    borderColor: '#2196f3',
   };
   
   const acceptStyle = {
@@ -77,8 +77,8 @@ const UploadFile = (props:any) => {
         <>
         <ModalHeader>Drop/Add your file</ModalHeader>
             <ModalCloseButton />
-            <ModalBody>
-              <div {...getRootProps({style: style as React.CSSProperties})}>
+            <ModalBody >
+              <div {...getRootProps({style: style as React.CSSProperties})} className='h-3/5'>
                 <input {...getInputProps()} />
                 {isDragActive ? (
                   <p>{`Drop the files here ...`}</p>

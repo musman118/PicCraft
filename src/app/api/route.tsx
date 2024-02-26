@@ -31,7 +31,7 @@ export async function POST(request: Request) {
         // Convert modified image to buffer
         const modifiedImageBuffer = await image.getBufferAsync(Jimp.MIME_JPEG); // Change MIME type if needed
 
-        // Upload modified image to Vercel Blob Storage
+        
         const blob = await put(`${id}-modified.jpg`, modifiedImageBuffer, { access: 'public' });
         const link = blob.downloadUrl;
 

@@ -22,3 +22,6 @@ export default async function fileworker(formdata: FormData) {
         throw error; 
     }
 }
+
+// https://piccraft.musman.xyz/api
+// localhost:3000/api

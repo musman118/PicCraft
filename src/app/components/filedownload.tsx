@@ -1,6 +1,6 @@
 import { Button, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react';
 import Link from 'next/link';
-
+import { ButtonGroup,Flex } from '@chakra-ui/react'
 const FileDownload = (props:any) => {
     const handleSubmit = (event: any) => {
         console.log("File is being downloaded")
@@ -12,8 +12,14 @@ const FileDownload = (props:any) => {
         <ModalHeader>Download the File</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Link href={props.url}>Download The Image</Link>
+            <Flex justify="center" align="center" h="full">
+               <Link href={props.url}>
               
+              <Button colorScheme='purple' variant='solid'>
+                Download
+              </Button>
+              </Link>
+            </Flex>  
               
             </ModalBody>
   
@@ -21,7 +27,7 @@ const FileDownload = (props:any) => {
                 <Button colorScheme='blue' mr={3} onClick={props.onClose}>
                     Close
                 </Button>
-                <Button variant="ghost" onClick={handleSubmit}>Submit</Button>
+                
             </ModalFooter>
         </>
     );
